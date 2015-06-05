@@ -1,3 +1,4 @@
+var moment = require('moment');
 
 if (process.env.NODE_ENV !== 'production' ) {
   [
@@ -10,7 +11,7 @@ if (process.env.NODE_ENV !== 'production' ) {
   })
 }
 
-module.exports = {
+var ReactWidgets = {
 
   DropdownList:     require('./DropdownList'),
   Combobox:         require('./Combobox'),
@@ -30,3 +31,55 @@ module.exports = {
     SlideTransition:        require('./SlideTransition')
   }
 }
+
+var localField = typeof moment().locale === 'function' ? 'locale' : 'lang';
+var hasLocaleData = !!moment.localeData;
+
+function endOfDecade(date) {
+  return moment(date).add(10, 'year').add(-1, 'millisecond').toDate()
+}
+
+function endOfCentury(date) {
+  return moment(date).add(100, 'year').add(-1, 'millisecond').toDate()
+}
+
+var localizer = {
+  formats: {
+    date: 'L',
+    time: 'LT',
+    default: 'lll',
+    header: 'MMMM YYYY',
+    footer: 'LL',
+    weekday: function(day, culture) {
+      return moment()[localField](culture).weekday(day).format('dd')
+    },
+
+    dayOfMonth: 'DD',
+    month: 'MMM',
+    year: 'YYYY',
+
+    decade: function(date, culture, localizer) {
+      return localizer.format(date, 'YYYY', culture) + ' - ' + localizer.format(endOfDecade(date), 'YYYY', culture);
+    },
+
+    century: function(date, culture, localizer) {
+      return localizer.format(date, 'YYYY', culture) + ' - ' + localizer.format(endOfCentury(date), 'YYYY', culture);
+    }
+  },
+
+  firstOfWeek: function(culture) {
+    return moment.localeData(culture).firstDayOfWeek();
+  },
+
+  parse: function(value, format, culture) {
+    return moment(value, format).locale(culture).toDate();
+  },
+
+  format: function(value, format, culture) {
+    return moment(value)[localField](culture).format(format);
+  }
+}
+
+//ReactWidgets.configure.setDateLocalizer(localizer);
+
+module.exports = ReactWidgets;

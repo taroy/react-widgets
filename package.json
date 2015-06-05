@@ -41,6 +41,7 @@
     "date-arithmetic": "^3.0.0",
     "dom-helpers": "^1.3.2",
     "globalize": "~0.1.1",
+    "moment": "^2.10.3",
     "uncontrollable": "^1.1.3"
   },
   "devDependencies": {

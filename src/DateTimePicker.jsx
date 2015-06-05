@@ -17,6 +17,7 @@ var React  = require('react')
   , DateInput = require('./DateInput')
   , Btn       = require('./WidgetButton')
   , CustomPropTypes = require('./util/propTypes')
+  , moment = require('moment')
   , createUncontrolledWidget = require('uncontrollable');
 
 var viewEnum  = Object.keys(views).map( k => views[k] );
@@ -99,13 +100,14 @@ var DateTimePicker = React.createClass({
   getInitialState() {
     return {
       focused: false,
+      value: 'hummer og kanari'
     }
   },
 
   getDefaultProps() {
 
     return {
-      value:            null,
+      value:            new Date(),
       
       min:              new Date(1900,  0,  1),
       max:              new Date(2099, 11, 31),
@@ -123,6 +125,10 @@ var DateTimePicker = React.createClass({
     }
   },
 
+  componentDidMount() {
+    this.setState({value: this.state.value});
+  },
+
   render: function(){
     var { 
         className
@@ -134,11 +140,18 @@ var DateTimePicker = React.createClass({
       , dateListID = this._id('_cal')
       , dropUp = this.props.dropUp
       , renderPopup = _.isFirstFocusedRender(this) || this.props.open
-      , value = dateOrNull(this.props.value)
-      , owns;
+      , value = moment(this.state.value, this.props.format)
+      , owns; 
 
     if (dateListID && this.props.calendar ) owns = dateListID
     if (timeListID && this.props.time )     owns += ' ' + timeListID
+
+    value = value.isValid() ? value.toDate() : this.state.value
+
+    var tmpValue = moment(value, getFormat(this.props));
+    var valueIsValid = tmpValue.isValid();
+
+    var valueOrTodayIfInvalidValue = valueIsValid ? tmpValue.toDate() : moment().toDate();
 
     return (
       <div {...props}
@@ -219,7 +232,7 @@ var DateTimePicker = React.createClass({
                 id={timeListID}
                 optID={timeOptID}
                 aria-hidden={ !this.props.open }
-                value={value}
+                value={valueOrTodayIfInvalidValue}
                 format={this.props.timeFormat}
                 step={this.props.step}
                 min={this.props.min}
@@ -244,7 +257,7 @@ var DateTimePicker = React.createClass({
               ref="calPopup"
               tabIndex='-1'
               id={dateListID}
-              value={value}
+              value={valueOrTodayIfInvalidValue}
               aria-hidden={ !this.props.open }
               onChange={this._maybeHandle(this._selectDate)}/>
           }
@@ -321,6 +334,7 @@ var DateTimePicker = React.createClass({
   },
 
   _selectDate(date){
+    this.setState({value: date})
     var format   = getFormat(this.props) 
       , dateTime = dates.merge(date, this.props.value)
       , dateStr  = formatDate(date, format, this.props.culture) 
@@ -348,6 +362,8 @@ var DateTimePicker = React.createClass({
   },
 
   _parse: function(string){
+    this.setState({value: string})
+
     var format = getFormat(this.props, true)
       , editFormat = this.props.editFormat
       , parse = this.props.parse
@@ -439,8 +455,8 @@ function formatsParser(formats, culture, str){
   return null
 }
 
-function dateOrNull(dt){
-  if (dt && !isNaN(dt.getTime())) return dt
-  return null
-}
+// function dateOrNull(dt){
+//   if (dt && !isNaN(dt.getTime())) return dt
+//   return null
+// }
 

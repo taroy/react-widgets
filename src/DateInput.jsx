@@ -1,6 +1,7 @@
 'use strict';
 var React = require('react')
   , cx = require('classnames')
+  , moment = require('moment')
   , dates = require('./util/dates')
   , compat = require('./util/compat')
   , localizers = require('./util/configuration').locale
@@ -17,7 +18,7 @@ module.exports = React.createClass({
     editFormat:   CustomPropTypes.dateFormat,
     parse:        React.PropTypes.func.isRequired,
 
-    value:        React.PropTypes.instanceOf(Date),
+    value:        React.PropTypes.string,
     onChange:     React.PropTypes.func.isRequired,
     culture:      React.PropTypes.string,
   },
@@ -29,6 +30,8 @@ module.exports = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
+    console.log('nextProps.value');
+    console.dir(nextProps.value);
      var text = formatDate(
             nextProps.value
           , nextProps.editing && nextProps.editFormat 
@@ -102,12 +105,14 @@ function isValid(d) {
 }
 
 function formatDate(date, format, culture){
-  var val = ''
+  var value = date;
+  var parsedDate = moment(date, format);
+  var isValid = parsedDate.isValid();
 
-  if ( (date instanceof Date) && isValid(date) )
-    val = localizers.date.format(date, format, culture)
+  if (isValid)
+    value = localizers.date.format(date, format, culture)
 
-  return val;
+  return value;
 }
 
 function chain(a,b, thisArg){
