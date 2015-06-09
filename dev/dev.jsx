@@ -13,6 +13,7 @@ var DropdownList = require('../src/DropdownList.jsx')
 var Multiselect = require('../src/Multiselect.jsx')
 var Calendar = require('../src/Calendar.jsx')
 var DatePicker = require('../src/DateTimePicker.jsx')
+var SimpleDatePicker = require('../src/DatePicker.jsx')
 var NumberPicker = require('../src/NumberPicker.jsx')
 var ComboBox = require('../src/Combobox.jsx')
 var SelectList = require('../src/SelectList.jsx')
@@ -69,7 +70,6 @@ configure.setDateLocalizer({
 //   return jquery(element).animate(props, duration, callback)
 // })
 
-
 var App = React.createClass({
 
   getInitialState: function(){
@@ -83,7 +83,8 @@ var App = React.createClass({
       selectValues: [3,4,5,2],
       calDate: new Date(),
       numberValue: 1,
-      open: false
+      open: false,
+      dateValue: new Date()
     }
   },
 
@@ -109,6 +110,13 @@ var App = React.createClass({
     }
   },
 
+  onChange(date, str) {
+    console.info("DATE, STR");
+    console.dir(date);
+    console.dir(str);
+    this.setState({dateValue: date});
+  },
+
   render(){
     var self = this;
 
@@ -126,16 +134,18 @@ var App = React.createClass({
       //console.log('example: set field: ' + field, data)
     }
 
+    console.info(this.state.dateValue);
+
     return (
       <div style={{ fontSize: 14 }}>
         <div style={{ maxWidth: 600, height: 1500 }}>
 
           <section className="example" style={{ marginBottom: 20 }}>
-          <button onClick={() => this.dropdowns()}>add</button>
+          {/*<button onClick={() => this.dropdowns()}>add</button>*/}
 
-          <DatePicker culture='nb' open="calendar" format='DD.MM.YYYY' />
+          <DatePicker culture='nb' time={false} value={this.state.dateValue} onChange={this.onChange}/>
           {/*<DatePicker culture='nb' open="calendar" format={['DD.MM.YYYY','DD.MM.YY']} />*/}
-          <NumberPicker />
+          {/*<NumberPicker />*/}
 
           </section>
         </div>

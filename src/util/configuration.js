@@ -24,7 +24,7 @@ module.exports = {
   animate: require('./dom/animate'),
 
   locale: {
-    date:   globalizeDateLocalizer(globalize),
+    date:   require('../MomentLocalizer'),
     number: globalizeNumberLocalizer(globalize)
   }
 }

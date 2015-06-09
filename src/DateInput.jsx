@@ -7,6 +7,8 @@ var React = require('react')
   , localizers = require('./util/configuration').locale
   , CustomPropTypes = require('./util/propTypes');
 
+var momentLocalizer = require('./MomentLocalizer')(moment);
+
 
 module.exports = React.createClass({
 
@@ -30,16 +32,18 @@ module.exports = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    console.log('nextProps.value');
-    console.dir(nextProps.value);
-     var text = formatDate(
-            nextProps.value
-          , nextProps.editing && nextProps.editFormat 
-              ? nextProps.editFormat 
-              : nextProps.format
-          , nextProps.culture)
+    var text = formatDate(
+          nextProps.value
+        , nextProps.editing && nextProps.editFormat 
+            ? nextProps.editFormat 
+            : nextProps.format
+        , nextProps.culture)
 
     this.startValue = text
+
+    if (text === 'Invalid date') {
+      text = nextProps.value;
+    }
 
     this.setState({
       textValue: text
@@ -89,8 +93,7 @@ module.exports = React.createClass({
 
     if ( this._needsFlush ){
       this._needsFlush = false
-      this.props.onChange(
-        this.props.parse(val), val);
+      this.props.onChange(momentLocalizer.parse(val, this.props.format, this.props.culture), val);
     }
   },
 
@@ -109,8 +112,9 @@ function formatDate(date, format, culture){
   var parsedDate = moment(date, format);
   var isValid = parsedDate.isValid();
 
-  if (isValid)
+  if (isValid) {
     value = localizers.date.format(date, format, culture)
+  }
 
   return value;
 }

@@ -32,54 +32,58 @@ var ReactWidgets = {
   }
 }
 
-var localField = typeof moment().locale === 'function' ? 'locale' : 'lang';
-var hasLocaleData = !!moment.localeData;
+// var localField = typeof moment().locale === 'function' ? 'locale' : 'lang';
+// var hasLocaleData = !!moment.localeData;
 
-function endOfDecade(date) {
-  return moment(date).add(10, 'year').add(-1, 'millisecond').toDate()
-}
+// function endOfDecade(date) {
+//   return moment(date).add(10, 'year').add(-1, 'millisecond').toDate()
+// }
 
-function endOfCentury(date) {
-  return moment(date).add(100, 'year').add(-1, 'millisecond').toDate()
-}
+// function endOfCentury(date) {
+//   return moment(date).add(100, 'year').add(-1, 'millisecond').toDate()
+// }
 
-var localizer = {
-  formats: {
-    date: 'L',
-    time: 'LT',
-    default: 'lll',
-    header: 'MMMM YYYY',
-    footer: 'LL',
-    weekday: function(day, culture) {
-      return moment()[localField](culture).weekday(day).format('dd')
-    },
+// var localizer = {
+//   formats: {
+//     date: 'L',
+//     time: 'LT',
+//     default: 'lll',
+//     header: 'MMMM YYYY',
+//     footer: 'LL',
+//     weekday: function(day, culture) {
+//       return moment()[localField](culture).weekday(day).format('dd')
+//     },
 
-    dayOfMonth: 'DD',
-    month: 'MMM',
-    year: 'YYYY',
+//     dayOfMonth: 'DD',
+//     month: 'MMM',
+//     year: 'YYYY',
 
-    decade: function(date, culture, localizer) {
-      return localizer.format(date, 'YYYY', culture) + ' - ' + localizer.format(endOfDecade(date), 'YYYY', culture);
-    },
+//     decade: function(date, culture, localizer) {
+//       return localizer.format(date, 'YYYY', culture) + ' - ' + localizer.format(endOfDecade(date), 'YYYY', culture);
+//     },
 
-    century: function(date, culture, localizer) {
-      return localizer.format(date, 'YYYY', culture) + ' - ' + localizer.format(endOfCentury(date), 'YYYY', culture);
-    }
-  },
+//     century: function(date, culture, localizer) {
+//       return localizer.format(date, 'YYYY', culture) + ' - ' + localizer.format(endOfCentury(date), 'YYYY', culture);
+//     }
+//   },
 
-  firstOfWeek: function(culture) {
-    return moment.localeData(culture).firstDayOfWeek();
-  },
+//   firstOfWeek: function(culture) {
+//     return moment.localeData(culture).firstDayOfWeek();
+//   },
 
-  parse: function(value, format, culture) {
-    return moment(value, format).locale(culture).toDate();
-  },
+//   parse: function(value, format, culture) {
+//     console.info("PARSE");
+//     return moment(value, format).locale(culture).toDate();
+//   },
 
-  format: function(value, format, culture) {
-    return moment(value)[localField](culture).format(format);
-  }
-}
+//   format: function(value, format, culture) {
+//     console.info("FORMAT");
+//     return moment(value)[localField](culture).format(format)
+//   }
+// }
 
-//ReactWidgets.configure.setDateLocalizer(localizer);
+var localizer = require('./MomentLocalizer');
+
+ReactWidgets.configure.setDateLocalizer(localizer(moment));
 
 module.exports = ReactWidgets;

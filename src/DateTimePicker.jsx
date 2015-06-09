@@ -20,6 +20,8 @@ var React  = require('react')
   , moment = require('moment')
   , createUncontrolledWidget = require('uncontrollable');
 
+moment.locale('nb');
+
 var viewEnum  = Object.keys(views).map( k => views[k] );
 
 var propTypes = {
@@ -100,7 +102,7 @@ var DateTimePicker = React.createClass({
   getInitialState() {
     return {
       focused: false,
-      value: 'hummer og kanari'
+      value: new Date()
     }
   },
 
@@ -109,10 +111,10 @@ var DateTimePicker = React.createClass({
     return {
       value:            new Date(),
       
-      min:              new Date(1900,  0,  1),
-      max:              new Date(2099, 11, 31),
+      min:              new Date(2012,  0,  1),
+      max:              new Date(),
       calendar:         true,
-      time:             true,
+      time:             false,
       open:             false,
 
       //calendar override
@@ -146,12 +148,30 @@ var DateTimePicker = React.createClass({
     if (dateListID && this.props.calendar ) owns = dateListID
     if (timeListID && this.props.time )     owns += ' ' + timeListID
 
-    value = value.isValid() ? value.toDate() : this.state.value
+    // value = value.isValid() ? value.toDate() : this.state.value
+    value = this.state.value
 
-    var tmpValue = moment(value, getFormat(this.props));
+    var tmpValue = moment(value, getFormat(this.props), true);
     var valueIsValid = tmpValue.isValid();
 
+    if(valueIsValid) {
+      var isBefore = moment(tmpValue, getFormat(this.props)).isBefore(new Date());
+      if(!isBefore) {
+        //Feilmelding + styling
+      }
+      var isAfter = moment(tmpValue, getFormat(this.props)).isAfter('01.01.2012', 'day');
+       if(!isAfter)  {
+        //feilmelding + styling
+      }
+
+    }
+    else {
+      //Feilmelding + styling
+    }
+
     var valueOrTodayIfInvalidValue = valueIsValid ? tmpValue.toDate() : moment().toDate();
+
+    value = this.props.value;
 
     return (
       <div {...props}
@@ -193,7 +213,8 @@ var DateTimePicker = React.createClass({
           editing={this.state.focused}
           culture={this.props.culture}
           parse={this._parse}
-          onChange={this._change} />
+          onChange={this._change} 
+          />
           
         { (this.props.calendar || this.props.time) &&
         <span className='rw-select'>
@@ -259,7 +280,8 @@ var DateTimePicker = React.createClass({
               id={dateListID}
               value={valueOrTodayIfInvalidValue}
               aria-hidden={ !this.props.open }
-              onChange={this._maybeHandle(this._selectDate)}/>
+              onChange={this._maybeHandle(this._selectDate)}
+              />
           }
         </Popup>
       </div>
@@ -277,8 +299,9 @@ var DateTimePicker = React.createClass({
         if( date != this.props.value )
           change(date, str)
       }
-      else if (!dates.eq(date, this.props.value))
+      else if (!dates.eq(date, this.props.value)) {
         change(date, str)
+      }
     }
   },
 
@@ -335,6 +358,7 @@ var DateTimePicker = React.createClass({
 
   _selectDate(date){
     this.setState({value: date})
+    this.setState({originalValue: date})
     var format   = getFormat(this.props) 
       , dateTime = dates.merge(date, this.props.value)
       , dateStr  = formatDate(date, format, this.props.culture) 
